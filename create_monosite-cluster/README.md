@@ -30,7 +30,7 @@ See: http://www.splunk.com/en_us/download/universal-forwarder.html
 
 This will start the entire environment and run Ansible playbooks.
 
-[![asciicast](https://asciinema.org/a/b7vmpcfyblnbzjlf9eou94gt1.png)](https://asciinema.org/a/b7vmpcfyblnbzjlf9eou94gt1?speed=10&theme=tango)
+[![asciicast](https://asciinema.org/a/2ca7yzk9c2w4rbrpdzjigvd5v.png)](https://asciinema.org/a/2ca7yzk9c2w4rbrpdzjigvd5v?speed=10&theme=tango)
 
 Once operations are done, you can:
 

@@ -24,7 +24,7 @@
 
   # Apply
   - name: Apply the sh-bundle
-    command: "{{ splunk_installpath }}/splunk/bin/splunk apply shcluster-bundle --answer-yes -target https://head1:8089 -auth admin:changeme"
+    command: "{{ splunk_installpath }}/splunk/bin/splunk apply shcluster-bundle --answer-yes -target https://head1:8089 -auth admin:admin"
     become: yes
     become_user: splunk
 
@@ -48,7 +48,7 @@
 
   # Apply
   - name: Apply the cluster bundle
-    command: "{{ splunk_installpath }}/splunk/bin/splunk apply cluster-bundle --answer-yes -auth admin:changeme"
+    command: "{{ splunk_installpath }}/splunk/bin/splunk apply cluster-bundle --answer-yes -auth admin:admin"
     become: yes
     become_user: splunk
 

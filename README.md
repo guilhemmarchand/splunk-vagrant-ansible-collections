@@ -11,6 +11,8 @@ Running these virtual environments will require a modern enough computer with ph
 
 Personally, i am using myself an Intel i7 CPU with 10 GB RAM and SSD for fast storage.
 
+[![asciicast](https://asciinema.org/a/djvvv66yamluxspiwka88sdw8.png)](https://asciinema.org/a/djvvv66yamluxspiwka88sdw8?speed=2&theme=tango)
+
 Currently, following configuration scenario are available:
 
 ## create_monosite_cluster
@@ -24,4 +26,3 @@ Instructions are available in the [README](https://github.com/guilhemmarchand/sp
 This scenario will automatically deploy the Nmon Performance application (See https://splunkbase.splunk.com/app/1753 or https://github.com/guilhemmarchand/nmon-for-splunk) for the mono-site cluster configuration.
 
 Instructions are available in the [README](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/deploy_nmon_cluster_monosite) of the repository
-

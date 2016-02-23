@@ -58,6 +58,7 @@ Simply run:
 
 `$ ./destroy.sh`
 
+[![asciicast](https://asciinema.org/a/77wkadwlng00hfjyeuracd0q5.png)](https://asciinema.org/a/77wkadwlng00hfjyeuracd0q5?speed=10&theme=tango)
 
 
 

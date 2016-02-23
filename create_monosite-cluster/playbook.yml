@@ -1,0 +1,35 @@
+---
+
+- hosts: all
+  become: yes
+  become_method: sudo
+
+  vars:
+   - template_hosts: "hosts"
+   - localzone: Europe/Paris
+
+  tasks:
+
+############################## Set Timezone ##############################
+
+# Configure time zone
+  - name: Set timezone variables for Debian / Ubuntu
+    copy: content='{{ localzone }}'
+          dest=/etc/timezone
+          owner=root
+          group=root
+          mode=0644
+          backup=yes
+    notify:
+      - update timezone
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+  - block:
+
+    - name: Set timezone for CentOS / RHEL / Fedora
+      file: src=/usr/share/zoneinfo/{{ localzone }}  dest=/etc/localtime state=link force=yes
+
+    when: ansible_distribution != 'Debian' or ansible_distribution != 'Ubuntu'
+
+  - name: Update hosts file
+    action: template src={{ template_hosts }} dest=/etc/hosts

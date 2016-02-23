@@ -1,0 +1,41 @@
+---
+
+########################################################################################################################
+# Indexers configuration
+########################################################################################################################
+
+- hosts: peer1 peer2
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+   - peers_cluster_key: this_is_the_secret_peers_cluster_key
+
+  tasks:
+
+  # Verify if Splunk is already installed
+  - name: Check if Splunk path exists
+    stat: path={{ splunk_installpath }}/splunk
+    register: check_splunk_path
+
+  # Enable peer
+  - name: Enable node as a peer node of the indexer cluster
+    command: "{{ splunk_installpath }}/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://master:8089 -replication_port 9887 -secret {{ peers_cluster_key }} -auth admin:changeme"
+    become: yes
+    become_user: splunk
+
+  # Enable peer
+  - name: Enable receiving port 9997
+    command: "{{ splunk_installpath }}/splunk/bin/splunk enable listen 9997 -auth admin:changeme"
+    become: yes
+    become_user: splunk
+
+  # Restart service
+  - name: Restart Splunk
+    service: name=splunk state=restarted
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 delay=5
+

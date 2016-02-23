@@ -1,0 +1,86 @@
+---
+
+########################################################################################################################
+# Configure sh cluster members
+########################################################################################################################
+
+  ######################################################################################################################
+
+- hosts: head1 head2 head3
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+   - peers_cluster_key: this_is_the_secret_peers_cluster_key
+   - sh_cluster_key: this_is_the_secret_sh_cluster_key
+
+  tasks:
+
+  # Make them part of the indexer cluster
+  - name: Enable search head as part of the indexer cluster
+    command: "{{ splunk_installpath }}/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri https://master:8089 -secret {{ peers_cluster_key }} -auth admin:changeme"
+    become: yes
+    become_user: splunk
+
+  # Restart service
+  - name: Restart Splunk
+    service: name=splunk state=restarted
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 delay=5
+
+  # Enable sh
+  - name: Enable the search member as part of the sh cluster
+    command: "{{ splunk_installpath }}/splunk/bin/splunk init shcluster-config -auth admin:changeme -mgmt_uri https://{{ansible_hostname}}:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://master:8089 -secret {{ sh_cluster_key }} -shcluster_label shcluster1"
+    become: yes
+    become_user: splunk
+
+  # Restart service
+  - name: Restart Splunk
+    service: name=splunk state=restarted
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 delay=5
+
+  ######################################################################################################################
+
+  # Bring up the captain, using the last configured search head
+
+- hosts: head3
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+
+  tasks:
+
+  # Bring up cluster captain
+  - name: Bring up the cluster captain
+    command: '{{ splunk_installpath }}/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://head1:8089,https://head2:8089,https://head3:8089" -auth admin:changeme'
+    become: yes
+    become_user: splunk
+
+  ######################################################################################################################
+
+- hosts: master
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+
+  tasks:
+
+  # Copy the config_cluster application to send search-heads data to the cluster
+  - name: Deploy the config_cluster app to forward search heads data to the indexer layer
+    copy: src=cluster_config dest={{ splunk_installpath }}/splunk/etc/shcluster/apps/ owner=splunk group=splunk
+
+  # Apply
+  - name: Deploy the config_cluster application
+    command: "{{ splunk_installpath }}/splunk/bin/splunk apply shcluster-bundle --answer-yes -target https://head1:8089 -auth admin:changeme"
+    become: yes
+    become_user: splunk

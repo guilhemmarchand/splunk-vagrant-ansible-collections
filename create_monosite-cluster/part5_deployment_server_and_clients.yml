@@ -1,0 +1,88 @@
+---
+
+########################################################################################################################
+# Configure deployment servers & clients
+########################################################################################################################
+
+  ######################################################################################################################
+
+- hosts: deployment1
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+
+  tasks:
+
+  # Apply outputs.conf
+  # See: http://docs.splunk.com/Documentation/Splunk/latest/Indexer/Forwardmasterdata
+  - name: Forward master node data to the indexer layer
+    copy: src=cluster_config dest={{ splunk_installpath }}/splunk/etc/apps/ owner=splunk group=splunk
+
+  # Apply outputs.conf for clients
+  # See: http://docs.splunk.com/Documentation/Splunk/latest/Indexer/Forwardmasterdata
+  - name: Prepare the config_cluster app for deployment
+    copy: src=cluster_config dest={{ splunk_installpath }}/splunk/etc/deployment-apps/ owner=splunk group=splunk
+
+  # copy serverclass.conf
+  - name: Copy serverclass.conf
+    copy: src=serverclass.conf dest={{ splunk_installpath }}/splunk/etc/system/local/ owner=splunk group=splunk
+
+  # Restart service
+  - name: Restart Splunk
+    service: name=splunk state=restarted
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 delay=5
+
+  ######################################################################################################################
+
+- hosts: uf1
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_binpath: "{{ lookup('pipe', 'ls /opt/deployment/splunk_bin/splunkforwarder*.tgz | head -1') }}"
+   - splunk_installpath: /opt
+   - splunk_deploymentserver_adress: deployment1:8089
+
+  tasks:
+
+############################## Deploy and Configuration Splunk UF ##############################
+
+  # Verify if Splunk Universal Forwarder is already installed
+  - name: Check if Splunk Universal Forwarder path exists
+    stat: path={{ splunk_installpath }}/splunkforwarder
+    register: check_splunk_path
+
+  # Copy and unarchive Splunk Universal Forwarder if not present
+  - name: Copy and unarchive Splunk Universal Forwarder
+    unarchive: src={{ splunk_binpath }} dest={{ splunk_installpath }}
+    when: check_splunk_path.stat.exists == false
+
+  # Start and accept licence
+  - name: Start Splunk Universal Forwarder and accept licence
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk start --answer-yes --no-prompt --accept-license"
+    when: check_splunk_path.stat.exists == false
+    ignore_errors: yes
+
+  # Enable boot-start
+  - name: Enable boot start for Splunk Universal Forwarder
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk enable boot-start"
+    when: check_splunk_path.stat.exists == false
+    ignore_errors: yes
+
+  # Configure Splunk as a client of the deployment server
+  - name: Configure Splunk as client of the deployment server
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk set deploy-poll {{ splunk_deploymentserver_adress }} -auth admin:changeme"
+    when: check_splunk_path.stat.exists == false
+    ignore_errors: yes
+
+  # Finally restart Splunk
+  - name: Restart Splunk Universal Forwarder
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk restart"
+    when: check_splunk_path.stat.exists == false
+    ignore_errors: yes
+

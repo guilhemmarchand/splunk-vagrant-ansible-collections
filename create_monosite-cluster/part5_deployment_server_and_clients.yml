@@ -82,7 +82,7 @@
 
   # Change default admin password to admin to allow remote connections
   - name: Set the admin default password to admin
-    command: "{{ splunk_installpath }}/splunk/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
 
   # Configure Splunk as a client of the deployment server
   - name: Configure Splunk as client of the deployment server

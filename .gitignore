@@ -2,6 +2,7 @@
 
 # pycharm
 .idea
+*/.idea
 
 # Vagrant
 .vagrant

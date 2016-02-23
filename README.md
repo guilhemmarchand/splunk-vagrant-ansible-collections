@@ -11,7 +11,7 @@ Running these virtual environments will require a modern enough computer with ph
 
 Personally, i am using myself an Intel i7 CPU with 10 GB RAM and SSD for fast storage.
 
-[![asciicast](https://asciinema.org/a/djvvv66yamluxspiwka88sdw8.png)](https://asciinema.org/a/djvvv66yamluxspiwka88sdw8?speed=2&theme=tango)
+[![asciicast](https://asciinema.org/a/78wws6b1f7m51iq9oib76lx6w.png)](https://asciinema.org/a/78wws6b1f7m51iq9oib76lx6w?speed=2&theme=tango)
 
 Currently, following configuration scenario are available:
 

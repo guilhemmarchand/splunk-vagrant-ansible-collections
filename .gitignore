@@ -1,4 +1,14 @@
 # .gitignore
 
+# pycharm
 .idea
+
+# Vagrant
 .vagrant
+*/gems
+*/tmp
+*/setup_version
+*/rgloader
+*/boxes
+*/data
+*/insecure_private_key

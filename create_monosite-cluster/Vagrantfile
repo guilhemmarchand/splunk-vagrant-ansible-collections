@@ -30,21 +30,21 @@ servers=[
         :ip => "192.168.33.104",
         :box => "ubuntu/vivid64",
         :ram => 512,
-        :cpu => 2
+        :cpu => 1
       },
       {
         :hostname => "head2",
         :ip => "192.168.33.105",
         :box => "ubuntu/vivid64",
         :ram => 512,
-        :cpu => 2
+        :cpu => 1
       },
       {
         :hostname => "head3",
         :ip => "192.168.33.106",
         :box => "ubuntu/vivid64",
         :ram => 512,
-        :cpu => 2
+        :cpu => 1
       },
       {
         :hostname => "deployment1",

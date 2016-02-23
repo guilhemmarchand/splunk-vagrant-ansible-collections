@@ -12,30 +12,6 @@
 
   tasks:
 
-############################## Set Timezone ##############################
-
-# Configure time zone
-  - name: Set timezone variables for Debian / Ubuntu
-    copy: content='{{ localzone }}'
-          dest=/etc/timezone
-          owner=root
-          group=root
-          mode=0644
-          backup=yes
-    notify:
-      - update timezone
-    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-
-  - block:
-
-    - name: Set timezone for CentOS / RHEL / Fedora
-      file: src=/usr/share/zoneinfo/{{ localzone }}  dest=/etc/localtime state=link force=yes
-
-    when: ansible_distribution != 'Debian' or ansible_distribution != 'Ubuntu'
-
-  - name: Update hosts file
-    action: template src={{ template_hosts }} dest=/etc/hosts
-
 ############################## Deploy Splunk ##############################
 
   - name: Create the system splunk account for splunk
@@ -56,26 +32,23 @@
     command: "{{ splunk_installpath }}/splunk/bin/splunk start --answer-yes --no-prompt --accept-license"
     become: yes
     become_user: splunk
-    when: check_splunk_path.stat.exists == false
     ignore_errors: yes
 
   # Enable boot-start
   - name: Enable boot start for Splunk
     command: "{{ splunk_installpath }}/splunk/bin/splunk enable boot-start -user splunk"
-    when: check_splunk_path.stat.exists == false
     ignore_errors: yes
 
   # Start service
   - name: Start Splunk service
     service: name=splunk state=started
-    when: check_splunk_path.stat.exists == false
 
   # Wait for service startup
   - name: Wait for Splunk startup
-    wait_for: port=8089 delay=5
-    when: check_splunk_path.stat.exists == false
+    wait_for: port=8089 delay=10
 
-  handlers:
-
-    - name: update timezone
-      command: dpkg-reconfigure --frontend noninteractive tzdata
+  # Change default admin password to admin to allow remote connections
+  - name: Set the admin default password to admin
+    command: "{{ splunk_installpath }}/splunk/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
+    become: yes
+    become_user: splunk

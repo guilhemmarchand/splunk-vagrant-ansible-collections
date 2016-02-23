@@ -17,7 +17,7 @@
 
   # Enable master node
   - name: Enabling the master node
-    command: "{{ splunk_installpath }}/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -secret {{ peers_cluster_key }} -cluster_label cluster1 -auth admin:changeme"
+    command: "{{ splunk_installpath }}/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -secret {{ peers_cluster_key }} -cluster_label cluster1 -auth admin:admin"
     become: yes
     become_user: splunk
 
@@ -25,6 +25,8 @@
   # See: http://docs.splunk.com/Documentation/Splunk/latest/Indexer/Forwardmasterdata
   - name: Forward master node data to the indexer layer
     copy: src=cluster_config dest={{ splunk_installpath }}/splunk/etc/apps/ owner=splunk group=splunk
+
+  - debug: msg="Preparing the master node to act as the deployer of the shcluster"
 
   - lineinfile: dest="{{ splunk_installpath }}/splunk/etc/system/local/server.conf" line="[shclustering]"
     become: yes
@@ -38,10 +40,32 @@
     become: yes
     become_user: splunk
 
+  - debug: msg="Adding non indexers nodes as search peers for the DMC configuration (allows the master node getting data from nodes)"
+
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host head1:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host head2:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host head3:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host deployment1:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
   # Restart service
   - name: Restart Splunk
     service: name=splunk state=restarted
 
   # Wait for service startup
   - name: Wait for Splunk startup
-    wait_for: port=8089 delay=5
+    wait_for: port=8089 delay=10

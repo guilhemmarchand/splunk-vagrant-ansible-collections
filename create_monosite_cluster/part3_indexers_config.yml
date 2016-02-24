@@ -14,11 +14,6 @@
 
   tasks:
 
-  # Verify if Splunk is already installed
-  - name: Check if Splunk path exists
-    stat: path={{ splunk_installpath }}/splunk
-    register: check_splunk_path
-
   # Enable peer
   - name: Enable node as a peer node of the indexer cluster
     command: "{{ splunk_installpath }}/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://master:8089 -replication_port 9887 -secret {{ peers_cluster_key }} -auth admin:admin"
@@ -37,9 +32,11 @@
   #  become: yes
   #  become_user: splunk
 
-  # Restart service
+  # Restart service (don't wait here)
   - name: Restart Splunk
     service: name=splunk state=restarted
+    async: 20
+    poll: 0
 
   # Wait for service startup
   - name: Wait for Splunk startup

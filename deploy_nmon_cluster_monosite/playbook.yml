@@ -1,5 +1,7 @@
 ---
 
+############################## Master node layer configuration ##############################
+
 - hosts: master
   become: yes
   become_method: sudo
@@ -12,11 +14,25 @@
 
   tasks:
 
+  # Deploy the PA-nmon addon, prepare the indexer cluster & get Nmon data from peers
+  - name: Deploy the PA-nmon addon for the indexer cluster deployment
+    unarchive: src="{{ PA_archive }}" dest=/opt/splunk/etc/master-apps
+    become: yes
+    become_user: splunk
+
+  # Apply
+  - name: Apply the cluster bundle
+    command: "{{ splunk_installpath }}/splunk/bin/splunk apply cluster-bundle --answer-yes -auth admin:admin"
+    become: yes
+    become_user: splunk
+
+  # Deploy the core application
   - name: Unarchive nmon performance core app for sh cluster deployment
     unarchive: src={{ core_archive }} dest=/opt/splunk/etc/shcluster/apps
     become: yes
     become_user: splunk
 
+  # Deploy the TA-nmon addon on search heads to get performance data from search heads
   - name: Deploy the TA-nmon addon for sh cluster deployment
     unarchive: src="{{ TA_archive }}" dest=/opt/splunk/etc/shcluster/apps
     become: yes
@@ -28,6 +44,7 @@
     become: yes
     become_user: splunk
 
+  # Deploy the TA-nmon addon
   - name: Deploy the TA-nmon addon to the master
     unarchive: src="{{ TA_archive }}" dest=/opt/splunk/etc/apps
     become: yes
@@ -41,16 +58,7 @@
   - name: Wait for Splunk startup
     wait_for: port=8089 delay=5
 
-  - name: Deploy the PA-nmon addon for the indexer cluster deployment
-    unarchive: src="{{ PA_archive }}" dest=/opt/splunk/etc/master-apps
-    become: yes
-    become_user: splunk
-
-  # Apply
-  - name: Apply the cluster bundle
-    command: "{{ splunk_installpath }}/splunk/bin/splunk apply cluster-bundle --answer-yes -auth admin:admin"
-    become: yes
-    become_user: splunk
+############################## Deployment servers layer configuration ##############################
 
 - hosts: deployment1
   become: yes

@@ -29,9 +29,11 @@
   #  become: yes
   #  become_user: splunk
 
-  # Restart service
-  - name: Restart Splunk
+  # Restart service (don't wait here)
+  - name: Restart Splunk (run async but wait for service start)
     service: name=splunk state=restarted
+    async: 20
+    poll: 5
 
   # Wait for service startup
   - name: Wait for Splunk startup
@@ -44,8 +46,10 @@
     become_user: splunk
 
   # Restart service
-  - name: Restart Splunk
+  - name: Restart Splunk (run async but wait for service start)
     service: name=splunk state=restarted
+    async: 20
+    poll: 5
 
   # Wait for service startup
   - name: Wait for Splunk startup
@@ -66,7 +70,7 @@
   tasks:
 
   # Bring up cluster captain
-  - name: Bring up the cluster captain
+  - name: Bring up the cluster captain (may require some minutes to terminate)
     command: '{{ splunk_installpath }}/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://head1:8089,https://head2:8089,https://head3:8089" -auth admin:admin'
     become: yes
     become_user: splunk

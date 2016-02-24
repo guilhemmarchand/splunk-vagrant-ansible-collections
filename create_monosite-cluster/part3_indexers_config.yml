@@ -43,5 +43,6 @@
 
   # Wait for service startup
   - name: Wait for Splunk startup
-    wait_for: port=8089 delay=10
+    wait_for: port=8089 timeout=30
+    ignore_errors: yes
 

@@ -17,7 +17,7 @@ Currently, following configuration scenario are available:
 
 This scenario uses Vagrant and Ansible to create on a fly a mono-site Splunk cluster.
 
-Instructions are available in the [README](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/create_monosite-cluster) of the repository
+Instructions are available in the [README](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/create_monosite_cluster) of the repository
 
 ## deploy_nmon_cluster_monosite
 

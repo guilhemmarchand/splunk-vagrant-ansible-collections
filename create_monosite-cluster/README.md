@@ -30,7 +30,7 @@ See: http://www.splunk.com/en_us/download/universal-forwarder.html
 
 This will start the entire environment and run Ansible playbooks.
 
-[![asciicast](https://asciinema.org/a/80m4mjxm65ig5sf9j9vm3c5mj.png)](https://asciinema.org/a/80m4mjxm65ig5sf9j9vm3c5mj?speed=10&theme=tango)
+[![asciicast](https://asciinema.org/a/80m4mjxm65ig5sf9j9vm3c5mj.png)](https://asciinema.org/a/80m4mjxm65ig5sf9j9vm3c5mj?speed=15)
 
 Once operations are done, you can:
 
@@ -58,7 +58,7 @@ Simply run:
 
 `$ ./destroy.sh`
 
-[![asciicast](https://asciinema.org/a/77wkadwlng00hfjyeuracd0q5.png)](https://asciinema.org/a/77wkadwlng00hfjyeuracd0q5?speed=10&theme=tango)
+[![asciicast](https://asciinema.org/a/77wkadwlng00hfjyeuracd0q5.png)](https://asciinema.org/a/77wkadwlng00hfjyeuracd0q5?speed=15)
 
 
 

@@ -62,11 +62,9 @@
     become_user: splunk
     ignore_errors: yes
 
-  # Restart service (don't wait here)
+  # Restart service (wait for service startup)
   - name: Restart Splunk
     service: name=splunk state=restarted
-    async: 20
-    poll: 0
 
   # Wait for service startup
   - name: Wait for Splunk startup

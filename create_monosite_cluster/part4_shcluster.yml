@@ -46,10 +46,8 @@
     become_user: splunk
 
   # Restart service
-  - name: Restart Splunk (run async but wait for service start)
+  - name: Restart Splunk (wait for service start)
     service: name=splunk state=restarted
-    async: 20
-    poll: 5
 
   # Wait for service startup
   - name: Wait for Splunk startup

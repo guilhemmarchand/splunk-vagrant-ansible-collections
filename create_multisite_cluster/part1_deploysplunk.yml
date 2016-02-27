@@ -41,6 +41,13 @@
     command: "{{ splunk_installpath }}/splunk/bin/splunk enable boot-start -user splunk"
     ignore_errors: yes
 
+  # Lower the minimal volume of free space required
+  - name: Lower the minimal free space required (default 5GB, set to 1 GB to fit VMs space)
+    command: "{{ splunk_installpath }}/splunk/bin/splunk set minfreemb 1000 -auth admin:changeme"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
   # Start service (dont' wait for service to start)
   - name: Start Splunk service
     service: name=splunk state=started

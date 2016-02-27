@@ -37,7 +37,7 @@
   # Restart service (don't wait here)
   - name: Restart Splunk
     service: name=splunk state=restarted
-    async: 20
+    async: 60
     poll: 0
 
   # Wait for service startup
@@ -78,7 +78,7 @@
   # Restart service (don't wait here)
   - name: Restart Splunk
     service: name=splunk state=restarted
-    async: 20
+    async: 60
     poll: 0
 
   # Wait for service startup

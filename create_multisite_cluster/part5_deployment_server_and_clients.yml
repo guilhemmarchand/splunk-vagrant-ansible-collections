@@ -27,7 +27,7 @@
 
   # copy serverclass.conf
   - name: Copy serverclass.conf
-    copy: src=serverclass.conf_site1 dest={{ splunk_installpath }}/splunk/etc/system/local/ owner=splunk group=splunk
+    copy: src=serverclass.conf_site1 dest={{ splunk_installpath }}/splunk/etc/system/local/serverclass.conf owner=splunk group=splunk
 
   # Set as licence slave - This is not supported with trial licence !
   #- name: Set as licence slave
@@ -67,7 +67,7 @@
 
   # copy serverclass.conf
   - name: Copy serverclass.conf
-    copy: src=serverclass.conf_site2 dest={{ splunk_installpath }}/splunk/etc/system/local/ owner=splunk group=splunk
+    copy: src=serverclass.conf_site2 dest={{ splunk_installpath }}/splunk/etc/system/local/serverclass.conf owner=splunk group=splunk
 
   # Set as licence slave - This is not supported with trial licence !
   #- name: Set as licence slave

@@ -60,7 +60,7 @@
 
 ############################## Deployment servers layer configuration ##############################
 
-- hosts: deployment1
+- hosts: deployment1-site1 deployment1-site2
   become: yes
   become_method: sudo
 

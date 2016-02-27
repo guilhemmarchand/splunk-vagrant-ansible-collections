@@ -15,7 +15,7 @@
 ############################## Deploy Splunk ##############################
 
   - name: Create the system splunk account for splunk
-    user: name=splunk comment="system account for Splunk" system=yes state=present
+    user: name=splunk comment="system account for Splunk" state=present
 
   # Verify if Splunk is already installed
   - name: Check if Splunk path exists

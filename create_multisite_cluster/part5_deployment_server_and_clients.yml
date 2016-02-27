@@ -23,7 +23,7 @@
   # Apply outputs.conf for clients
   # See: http://docs.splunk.com/Documentation/Splunk/latest/Indexer/Forwardmasterdata
   - name: Prepare the config_cluster app for deployment
-    copy: src=cluster_config dest={{ splunk_installpath }}/splunk/etc/deployment-apps/ owner=splunk group=splunk
+    copy: src=cluster_config_site1 dest={{ splunk_installpath }}/splunk/etc/deployment-apps/ owner=splunk group=splunk
 
   # copy serverclass.conf
   - name: Copy serverclass.conf
@@ -63,7 +63,7 @@
   # Apply outputs.conf for clients
   # See: http://docs.splunk.com/Documentation/Splunk/latest/Indexer/Forwardmasterdata
   - name: Prepare the config_cluster app for deployment
-    copy: src=cluster_config dest={{ splunk_installpath }}/splunk/etc/deployment-apps/ owner=splunk group=splunk
+    copy: src=cluster_config_site2 dest={{ splunk_installpath }}/splunk/etc/deployment-apps/ owner=splunk group=splunk
 
   # copy serverclass.conf
   - name: Copy serverclass.conf

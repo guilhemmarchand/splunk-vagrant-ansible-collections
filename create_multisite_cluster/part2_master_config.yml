@@ -1,0 +1,78 @@
+---
+
+########################################################################################################################
+# Master node configuration
+########################################################################################################################
+
+- hosts: master
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+   - peers_cluster_key: this_is_the_secret_peers_cluster_key
+   - sh_cluster_key: this_is_the_secret_sh_cluster_key
+
+  tasks:
+
+  # Enable master node
+  - name: Enabling the master node, configure the replication_factor and search_factor to fit a multi-site cluster of 2 nodes per site
+    command: "{{ splunk_installpath }}/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:admin"
+    become: yes
+    become_user: splunk
+
+  # Enable master node
+  - name: Enabling the master node, configure the multi-site cluster
+    command: "{{ splunk_installpath }}/splunk/bin/splunk edit cluster-config -mode master -multisite true -available_sites site1,site2 -site site1 -site_replication_factor origin:1,total:2 -site_search_factor origin:1,total:2 -secret {{ peers_cluster_key }} -auth admin:admin"
+    become: yes
+    become_user: splunk
+
+  # Apply outputs.conf
+  # See: http://docs.splunk.com/Documentation/Splunk/latest/Indexer/Forwardmasterdata
+  - name: Forward master node data to the indexer layer
+    copy: src=cluster_config dest={{ splunk_installpath }}/splunk/etc/apps/ owner=splunk group=splunk
+
+  - debug: msg="Preparing the master node to act as the deployer of the shcluster"
+
+  - lineinfile: dest="{{ splunk_installpath }}/splunk/etc/system/local/server.conf" line="[shclustering]"
+    become: yes
+    become_user: splunk
+
+  - lineinfile: dest="{{ splunk_installpath }}/splunk/etc/system/local/server.conf" regexp="^shcluster_label " insertafter="^\[shclustering\]" line="shcluster_label = shcluster1"
+    become: yes
+    become_user: splunk
+
+  - lineinfile: dest="{{ splunk_installpath }}/splunk/etc/system/local/server.conf" insertafter="^shcluster_label" line="pass4SymmKey = {{ sh_cluster_key }}"
+    become: yes
+    become_user: splunk
+
+  - debug: msg="Adding non indexers nodes as search peers for the DMC configuration (allows the master node getting data from nodes)"
+
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host head1:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host head2:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host head3:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host deployment1:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  # Restart service (wait for service startup)
+  - name: Restart Splunk
+    service: name=splunk state=restarted
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 timeout=30
+    ignore_errors: yes

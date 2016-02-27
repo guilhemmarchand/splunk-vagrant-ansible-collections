@@ -12,50 +12,78 @@ servers=[
         :cpu => 1
       },
       {
-        :hostname => "peer1",
+        :hostname => "peer1-site1",
         :ip => "192.168.33.102",
         :box => "debian/jessie64",
-        :ram => 1024,
-        :cpu => 2
+        :ram => 512,
+        :cpu => 1
       },
       {
-        :hostname => "peer2",
+        :hostname => "peer2-site1",
         :ip => "192.168.33.103",
         :box => "debian/jessie64",
-        :ram => 1024,
-        :cpu => 2
+        :ram => 512,
+        :cpu => 1
       },
       {
-        :hostname => "head1",
+        :hostname => "peer1-site2",
         :ip => "192.168.33.104",
         :box => "debian/jessie64",
         :ram => 512,
         :cpu => 1
       },
       {
-        :hostname => "head2",
+        :hostname => "peer2-site2",
         :ip => "192.168.33.105",
         :box => "debian/jessie64",
         :ram => 512,
         :cpu => 1
       },
       {
-        :hostname => "head3",
+        :hostname => "head1",
         :ip => "192.168.33.106",
         :box => "debian/jessie64",
         :ram => 512,
         :cpu => 1
       },
       {
-        :hostname => "deployment1",
+        :hostname => "head2",
         :ip => "192.168.33.107",
+        :box => "debian/jessie64",
+        :ram => 512,
+        :cpu => 1
+      },
+      {
+        :hostname => "head3",
+        :ip => "192.168.33.108",
+        :box => "debian/jessie64",
+        :ram => 512,
+        :cpu => 1
+      },
+      {
+        :hostname => "deployment1-site1",
+        :ip => "192.168.33.109",
         :box => "debian/jessie64",
         :ram => 256,
         :cpu => 1
       },
       {
-        :hostname => "uf1",
-        :ip => "192.168.33.108",
+        :hostname => "deployment1-site2",
+        :ip => "192.168.33.1110",
+        :box => "debian/jessie64",
+        :ram => 256,
+        :cpu => 1
+      },
+      {
+        :hostname => "uf1-site1",
+        :ip => "192.168.33.111",
+        :box => "debian/jessie64",
+        :ram => 256,
+        :cpu => 1
+      },
+      {
+        :hostname => "uf1-site2",
+        :ip => "192.168.33.112",
         :box => "debian/jessie64",
         :ram => 256,
         :cpu => 1

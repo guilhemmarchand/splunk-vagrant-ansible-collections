@@ -1,0 +1,97 @@
+---
+
+########################################################################################################################
+# Configure sh cluster members
+########################################################################################################################
+
+  ######################################################################################################################
+
+- hosts: head1 head2 head3
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+   - peers_cluster_key: this_is_the_secret_peers_cluster_key
+   - sh_cluster_key: this_is_the_secret_sh_cluster_key
+
+  tasks:
+
+  # Make them part of the indexer cluster
+  - name: Enable search head as part of the indexer cluster (set site0 to disable search affinity and search accros multi-site clusters)
+    command: "{{ splunk_installpath }}/splunk/bin/splunk edit cluster-config -mode searchhead -site site0 -master_uri https://master:8089 -secret {{ peers_cluster_key }} -auth admin:admin"
+    become: yes
+    become_user: splunk
+
+  # Set as licence slave - This is not supported with trial licence !
+  #- name: Set as licence slave
+  #  command: "{{ splunk_installpath }}/splunk/bin/splunk edit licenser-localslave -master_uri 'https://master:8089'"
+  #  become: yes
+  #  become_user: splunk
+
+  # Restart service (don't wait here)
+  - name: Restart Splunk (run async but wait for service start)
+    service: name=splunk state=restarted
+    async: 20
+    poll: 5
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 delay=10
+
+  # Enable sh
+  - name: Enable the search member as part of the sh cluster
+    command: "{{ splunk_installpath }}/splunk/bin/splunk init shcluster-config -auth admin:admin -mgmt_uri https://{{ansible_hostname}}:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://master:8089 -secret {{ sh_cluster_key }} -shcluster_label shcluster1"
+    become: yes
+    become_user: splunk
+
+  # Restart service
+  - name: Restart Splunk (run async but wait for service start)
+    service: name=splunk state=restarted
+    async: 20
+    poll: 5
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 timeout=30
+    ignore_errors: yes
+
+  ######################################################################################################################
+
+  # Bring up the captain, using the last configured search head
+
+- hosts: head3
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+
+  tasks:
+
+  # Bring up cluster captain
+  - name: Bring up the cluster captain (may require some minutes to terminate)
+    command: '{{ splunk_installpath }}/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://head1:8089,https://head2:8089,https://head3:8089" -auth admin:admin'
+    become: yes
+    become_user: splunk
+
+  ######################################################################################################################
+
+- hosts: master
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+
+  tasks:
+
+  # Copy the config_cluster application to send search-heads data to the cluster
+  - name: Deploy the config_cluster app to forward search heads data to the indexer layer
+    copy: src=cluster_config dest={{ splunk_installpath }}/splunk/etc/shcluster/apps/ owner=splunk group=splunk
+
+  # Apply
+  - name: Deploy the config_cluster application
+    command: "{{ splunk_installpath }}/splunk/bin/splunk apply shcluster-bundle --answer-yes -target https://head1:8089 -auth admin:admin"
+    become: yes
+    become_user: splunk

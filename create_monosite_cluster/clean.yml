@@ -1,0 +1,80 @@
+---
+
+############################## Splunk ##############################
+
+- hosts: master peer1-site1 peer2-site1 peer1-site2 peer2-site2 head1 head2 head3 deployment1
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+
+  tasks:
+
+############################## Stop and Clean ##############################
+
+  - name: Disable boot-start
+    command: "{{ splunk_installpath }}/splunk/bin/splunk disable boot-start"
+    ignore_errors: yes
+
+  # Stop service
+  - name: Stop Splunk service
+    service: name=splunk state=stopped
+    ignore_errors: yes
+
+  # Kill
+  - name: Clean splunkd processes
+    command: killall -w splunkd
+    ignore_errors: yes
+
+  # Kill
+  - name: Clean remaining processes
+    command: killall -w -u splunk
+    ignore_errors: yes
+
+  # Delete Splunk user
+  - name: Delete the system splunk account for splunk
+    user: name=splunk state=absent remove=yes
+    ignore_errors: yes
+
+  # Remove
+  - name: Cleaning Splunk directory
+    file: path={{ splunk_installpath }}/splunk state=absent
+    ignore_errors: yes
+
+############################## Splunk Forwarders ##############################
+
+- hosts: uf1
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_installpath: /opt
+
+  tasks:
+
+############################## Stop and Clean ##############################
+
+  - name: Disable boot-start
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk disable boot-start"
+    ignore_errors: yes
+
+  # Stop service
+  - name: Stop Splunk service
+    service: name=splunk state=stopped
+    ignore_errors: yes
+
+  # Kill
+  - name: Clean processes
+    command: killall -w splunkd
+    ignore_errors: yes
+
+  # Delete Splunk user
+  - name: Delete the system splunk account for splunk
+    user: name=splunk state=absent remove=yes
+    ignore_errors: yes
+
+  # Remove
+  - name: Cleaning Splunk directory
+    file: path={{ splunk_installpath }}/splunkforwarder state=absent
+    ignore_errors: yes

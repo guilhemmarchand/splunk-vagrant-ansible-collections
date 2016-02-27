@@ -1,0 +1,59 @@
+---
+
+- hosts: master peer1-site1 peer2-site1 peer1-site2 peer2-site2 head1 head2 head3 deployment1-site1 deployment1-site2
+  become: yes
+  become_method: sudo
+
+  vars:
+   - splunk_binpath: "{{ lookup('pipe', 'ls /opt/deployment/splunk_bin/splunk-*.tgz | head -1') }}"
+   - template_hosts: "hosts"
+   - splunk_installpath: /opt
+   - localzone: Europe/Paris
+
+  tasks:
+
+############################## Deploy Splunk ##############################
+
+  - name: Create the system splunk account for splunk
+    user: name=splunk comment="system account for Splunk" system=yes state=present
+
+  # Verify if Splunk is already installed
+  - name: Check if Splunk path exists
+    stat: path={{ splunk_installpath }}/splunk
+    register: check_splunk_path
+
+  # Copy and unarchive Splunk
+  - name: Copy and unarchive Splunk
+    unarchive: src={{ splunk_binpath }} dest={{ splunk_installpath }} owner=splunk group=splunk
+    when: check_splunk_path.stat.exists == false
+
+  # Start and accept licence (run async)
+  - name: Start Splunk and accept licence
+    command: "{{ splunk_installpath }}/splunk/bin/splunk start --answer-yes --no-prompt --accept-license"
+    async: 20
+    poll: 5
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  # Enable boot-start
+  - name: Enable boot start for Splunk
+    command: "{{ splunk_installpath }}/splunk/bin/splunk enable boot-start -user splunk"
+    ignore_errors: yes
+
+  # Start service (dont' wait for service to start)
+  - name: Start Splunk service
+    service: name=splunk state=started
+    async: 20
+    poll: 0
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 timeout=30
+    ignore_errors: yes
+
+  # Change default admin password to admin to allow remote connections
+  - name: Set the admin default password to admin
+    command: "{{ splunk_installpath }}/splunk/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
+    become: yes
+    become_user: splunk

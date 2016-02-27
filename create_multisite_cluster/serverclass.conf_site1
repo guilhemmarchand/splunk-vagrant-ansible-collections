@@ -1,4 +1,4 @@
-[serverClass:UF-clients:app:cluster_config]
+[serverClass:UF-clients:app:cluster_config_site1]
 restartSplunkWeb = 0
 restartSplunkd = 1
 stateOnClient = enabled

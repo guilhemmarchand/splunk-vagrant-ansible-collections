@@ -63,7 +63,12 @@
     become_user: splunk
     ignore_errors: yes
 
-  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host deployment1:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host deployment1-site1:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  - command: "{{ splunk_installpath }}/splunk/bin/splunk add search-server -host deployment1-site2:8089 -auth admin:admin -remoteUsername admin -remotePassword admin"
     become: yes
     become_user: splunk
     ignore_errors: yes

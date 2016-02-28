@@ -2,12 +2,24 @@
 
 export VAGRANT_HOME=`pwd`
 
-echo "****************** Desroying vagrant VMs: ******************"
+echo "****************** Destroying vagrant VMs: ******************"
 
-for server in master peer1 peer2 head1 head2 head3 deployment1 uf1; do
-
+for server in `grep -v -e ^# -e localhost -e ^$ hosts | awk '{print $2}'`; do
    vagrant destroy $server -f
+done
 
+# clean vagrant various files
+data="
+gems
+tmp
+setup_version
+rgloader
+data
+insecure_private_key
+.vagrant"
+
+for data in $data; do
+   rm -rf $data
 done
 
 echo "****************** Done. ******************"

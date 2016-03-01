@@ -1,10 +1,10 @@
-# This will create a full Splunk mono-site cluster with:
+# This will create a full Splunk multi-site cluster with:
 
 - master node
-- 2 x peer nodes (indexers)
-- 3 x search head nodes in sh cluster
-- 1 x deployment server
-- 1 x Universal Forwarder client
+- 4 x peer nodes (indexers), 2 x on site 1, 2 x on site 2 
+- 3 x search head nodes in sh cluster with no search affinity that will search across both sites
+- 2 x deployment server, 1 x on each site
+- 2 x Universal Forwarder client, 1 x on each site
 
 # pre-requisites:
 
@@ -46,9 +46,9 @@ http://192.168.33.104:8000
 
 With login / password: admin / admin
 
-* Connect to the deployment server and administer connected Universal Forwarders
+* Connect to deployment servers and administer connected Universal Forwarders
 
-http://192.168.33.107:8000
+http://192.168.33.110:8000 / http://192.168.33.110:8000
 
 With login / password: admin / admin
 

@@ -11,7 +11,7 @@ Running these virtual environments will require a modern enough computer with ph
 
 Personally, i am using myself an Intel i7 CPU with 10 GB RAM and SSD for fast storage.
 
-Currently, following configuration scenario are available:
+Currently, following items are available:
 
 ## create_monosite_cluster
 
@@ -19,8 +19,20 @@ This scenario uses Vagrant and Ansible to create on a fly a mono-site Splunk clu
 
 Instructions are available in the [README](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/create_monosite_cluster) of the repository
 
+## create_multisite_cluster
+
+This scenario uses Vagrant and Ansible to create on a fly a mutli-site Splunk cluster.
+
+Instructions are available in the [README](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/create_multisite_cluster) of the repository
+
 ## deploy_nmon_cluster_monosite
 
 This scenario will automatically deploy the Nmon Performance application (See https://splunkbase.splunk.com/app/1753 or https://github.com/guilhemmarchand/nmon-for-splunk) for the mono-site cluster configuration.
 
 Instructions are available in the [README](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/deploy_nmon_cluster_monosite) of the repository
+
+## deploy_nmon_cluster_multisite
+
+This scenario will automatically deploy the Nmon Performance application (See https://splunkbase.splunk.com/app/1753 or https://github.com/guilhemmarchand/nmon-for-splunk) for the multi-site cluster configuration.
+
+Instructions are available in the [README](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/deploy_nmon_cluster_multisite) of the repository

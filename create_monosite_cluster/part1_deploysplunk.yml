@@ -15,7 +15,7 @@
 ############################## Deploy Splunk ##############################
 
   - name: Create the system splunk account for splunk
-    user: name=splunk comment="system account for Splunk" state=present
+    user: name=splunk comment="system account for Splunk" shell=/bin/bash state=present
 
   # Verify if Splunk is already installed
   - name: Check if Splunk path exists
@@ -62,5 +62,45 @@
   # Change default admin password to admin to allow remote connections
   - name: Set the admin default password to admin
     command: "{{ splunk_installpath }}/splunk/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
+    ignore_errors: yes
     become: yes
     become_user: splunk
+
+############################## ssh config ##############################
+
+# Deploy the ssh rsa public key
+
+- hosts: master
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+  - name: Create the .ssh directory
+    file: path=/home/splunk/.ssh state=directory mode=0700 owner=splunk group=splunk
+
+  - name: Deploy the private key on the master node
+    copy: src=id_rsa dest=/home/splunk/.ssh/id_rsa owner=splunk group=splunk mode=0600
+
+  - name: Deploy the public key on the master node
+    copy: src=id_rsa.pub dest=/home/splunk/.ssh/id_rsa.pub owner=splunk group=splunk mode=0600
+
+- hosts: peer1 peer2 head1 head2 head3 deployment1
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+  - name: Deploy the public key for the splunk user
+    authorized_key: user=splunk key="{{ lookup('file', 'id_rsa.pub') }}"
+
+# Prevent SSH from asking confirmation for the first connexion
+
+- hosts: master
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+  - name: SSH Strict host checking deactivation
+    lineinfile: dest=/home/splunk/.ssh/config line="StrictHostKeyChecking no" create=yes owner=splunk group=splunk

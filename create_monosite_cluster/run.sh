@@ -28,4 +28,14 @@ echo "****************** Done, hosts map: ******************"
 cat hosts | grep -v localhost
 echo "******************************************************"
 
+echo ""
+echo "******************************************************************************"
+echo "Connect to the master node and sudo to splunk user for central administration:"
+echo "vagrant ssh master"
+echo " "
+echo "sudo su - splunk"
+echo " "
+echo "******************************************************************************"
+
+
 exit 0

@@ -71,6 +71,9 @@
     become: yes
     become_user: splunk
 
+  - name: 5 min sleeping to let the SHC cluster to come up
+    pause: minutes=5
+
   ######################################################################################################################
 
 - hosts: master

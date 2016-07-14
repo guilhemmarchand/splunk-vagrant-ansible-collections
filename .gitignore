@@ -14,5 +14,5 @@
 */data
 */insecure_private_key
 
-# ignore .retry
+# Ansible
 *.retry

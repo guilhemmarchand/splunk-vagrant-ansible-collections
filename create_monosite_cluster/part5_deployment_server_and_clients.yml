@@ -51,7 +51,7 @@
   become_method: sudo
 
   vars:
-   - splunk_binpath: "{{ lookup('pipe', 'ls /opt/deployment/splunk_bin/splunkforwarder*.tgz | head -1') }}"
+   - splunk_binpath: "{{ lookup('pipe', 'ls /opt/deployment/splunk_bin/splunkforwarder-*-Linux-x86_64.tgz | head -1') }}"
    - splunk_installpath: /opt
    - splunk_deploymentserver_adress: deployment1:8089
 

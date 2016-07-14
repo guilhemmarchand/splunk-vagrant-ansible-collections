@@ -56,7 +56,7 @@
 
   # Bring up the captain, using the last configured search head
 
-- hosts: head3
+- hosts: head1
   become: yes
   become_method: sudo
 

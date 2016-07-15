@@ -64,14 +64,14 @@ servers=[
         :hostname => "deployment1-site1",
         :ip => "192.168.33.109",
         :box => "ubuntu/trusty64",
-        :ram => 256,
+        :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "deployment1-site2",
         :ip => "192.168.33.110",
         :box => "ubuntu/trusty64",
-        :ram => 256,
+        :ram => 512,
         :cpu => 1
       },
       {

@@ -8,8 +8,8 @@
 
   vars:
    - core_archive: "{{ lookup('pipe', 'ls /opt/deployment/nmon-for-splunk/nmon-performance-monitor-for-unix-and-linux-systems_*.tgz | head -1') }}"
-   - TA_archive: "{{ lookup('pipe', 'ls /opt/deployment/nmon-for-splunk/TA-nmon_*.tar.gz | head -1') }}"
-   - PA_archive: "{{ lookup('pipe', 'ls /opt/deployment/nmon-for-splunk/PA-nmon_*.tar.gz | head -1') }}"
+   - TA_archive: "{{ lookup('pipe', 'ls /opt/deployment/nmon-for-splunk/TA-nmon_*.tgz | head -1') }}"
+   - PA_archive: "{{ lookup('pipe', 'ls /opt/deployment/nmon-for-splunk/PA-nmon_*.tgz | head -1') }}"
    - splunk_installpath: /opt
 
   tasks:
@@ -65,7 +65,7 @@
   become_method: sudo
 
   vars:
-   - TA_archive: "{{ lookup('pipe', 'ls /opt/deployment/nmon-for-splunk/TA-nmon_*.tar.gz | head -1') }}"
+   - TA_archive: "{{ lookup('pipe', 'ls /opt/deployment/nmon-for-splunk/TA-nmon_*.tgz | head -1') }}"
    - splunk_installpath: /opt
 
   tasks:

@@ -11,19 +11,19 @@ Running these virtual environments will require a modern enough computer with ph
 
 Following items are available:
 
-## create_monosite_cluster
+## [create_monosite_cluster](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/create_monosite_cluster)
 
 This scenario uses Vagrant and Ansible to create on a fly a mono-site Splunk cluster with Nmon Performance app deployment.
 
 Instructions are available in the [README](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/create_monosite_cluster) of the repository
 
-## create_multisite_cluster
+## [create_multisite_cluster](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/create_multisite_cluster)
 
 This scenario uses Vagrant and Ansible to create on a fly a mutli-site Splunk cluster with Nmon Performance app deployment.
 
 Instructions are available in the [README](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/create_multisite_cluster) of the repository
 
-## create_standalone_multiple_indexes
+## [create_standalone_multiple_indexes](https://github.com/guilhemmarchand/splunk-vagrant-ansible-collections/tree/master/create_standalone_multiple_indexes)
 
 This scenario uses Vagrant and Ansible to create on a fly a Splunk server with Nmon Performance app deployment. (multi-indexes deployment)
 

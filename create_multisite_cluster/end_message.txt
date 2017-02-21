@@ -1,0 +1,17 @@
+
+******************************************************************************
+Connect to the master node and sudo to splunk user for central administration:
+
+vagrant ssh master
+
+sudo su - splunk
+
+******************************************************************************
+
+******************************************************************************
+Open your Web browser and access to any of the search head nodes:
+
+login: admin
+password: admin
+
+******************************************************************************

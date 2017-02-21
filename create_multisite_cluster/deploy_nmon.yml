@@ -1,0 +1,135 @@
+---
+
+############################## Master node layer configuration ##############################
+
+- hosts: master
+  become: yes
+  become_method: sudo
+
+  vars_files:
+   - vars/global_vars.yml
+
+  tasks:
+
+  # Create working directory
+  - file:
+      path: /tmp/working_directory
+      state: directory
+      owner: splunk
+      group: splunk
+
+  # copy full archive to working_directory
+  - name: Copy core archive to working_directory
+    copy: src={{ core_archive }} dest=/tmp/working_directory/ owner=splunk group=splunk
+    become: yes
+    become_user: splunk
+
+  # Extract resources archives from core archive
+  - name: Extract resources
+    shell: "tar -xvzf /tmp/working_directory/nmon-performance-monitor-for-unix-and-linux-systems_*.tgz -C /tmp/working_directory/ nmon/resources --strip-components 2"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  # Deploy the PA-nmon addon, prepare the indexer cluster & get Nmon data from peers
+  - name: Deploy the PA-nmon addon for the indexer cluster deployment
+    shell: "tar -xzf `ls /tmp/working_directory/PA-nmon_*.tgz | grep -v PA-nmon_light` -C /opt/splunk/etc/master-apps/"
+    become: yes
+    become_user: splunk
+
+  # Apply
+  - name: Apply the cluster bundle
+    command: "{{ splunk_installpath }}/splunk/bin/splunk apply cluster-bundle --answer-yes -auth admin:admin"
+    become: yes
+    become_user: splunk
+
+  - name: 60 sec sleeping to let the resources to come up
+    pause: seconds=60
+
+  # Deploy the core application
+  - name: Unarchive nmon performance core app for sh cluster deployment
+    shell: "tar -xzf /tmp/working_directory/nmon-performance-monitor-for-unix-and-linux-systems_*.tgz -C /opt/splunk/etc/shcluster/apps/"
+    become: yes
+    become_user: splunk
+
+  # Deploy the TA-nmon addon on search heads to get performance data from search heads
+  - name: Deploy the TA-nmon addon for sh cluster deployment
+    shell: "tar -xzf `ls /tmp/working_directory/TA-nmon_*.tgz | grep -v TA-nmon_selfmode` -C /opt/splunk/etc/shcluster/apps/"
+    become: yes
+    become_user: splunk
+
+  # Apply
+  - name: Apply the sh-bundle
+    command: "{{ splunk_installpath }}/splunk/bin/splunk apply shcluster-bundle --answer-yes -target https://head1:8089 -auth admin:admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  # Deploy the TA-nmon addon
+  - name: Deploy the TA-nmon addon to the master
+    shell: "tar -xzf `ls /tmp/working_directory/TA-nmon_*.tgz | grep -v TA-nmon_selfmode` -C /opt/splunk/etc/apps/"
+    become: yes
+    become_user: splunk
+
+  # Restart
+  - name: Restart Splunk
+    service:
+      name: splunk
+      state: restarted
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 delay=5
+
+############################## Deployment servers layer configuration ##############################
+
+- hosts: deployment1-site1 deployment1-site2
+  become: yes
+  become_method: sudo
+
+  vars_files:
+   - vars/global_vars.yml
+
+  tasks:
+
+  # Create working directory
+  - file:
+      path: /tmp/working_directory
+      state: directory
+      owner: splunk
+      group: splunk
+
+  # copy full archive to working_directory
+  - name: Copy core archive to working_directory
+    copy: src={{ core_archive }} dest=/tmp/working_directory/ owner=splunk group=splunk
+    become: yes
+    become_user: splunk
+
+  # Extract resources archives from core archive
+  - name: Extract resources
+    shell: "tar -xvzf /tmp/working_directory/nmon-performance-monitor-for-unix-and-linux-systems_*.tgz -C /tmp/working_directory/ nmon/resources --strip-components 2"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  # Deploy the TA-nmon addon
+  - name: Deploy the TA-nmon addon to deployment server
+    shell: "tar -xzf `ls /tmp/working_directory/TA-nmon_*.tgz | grep -v TA-nmon_selfmode` -C /opt/splunk/etc/apps/"
+    become: yes
+    become_user: splunk
+
+  # Deploy the TA-nmon addon
+  - name: Deploy the TA-nmon addon to deployment server for clients deployment
+    shell: "tar -xzf `ls /tmp/working_directory/TA-nmon_*.tgz | grep -v TA-nmon_selfmode` -C /opt/splunk/etc/deployment-apps/"
+    become: yes
+    become_user: splunk
+
+  # Restart
+  - name: Restart Splunk
+    service:
+      name: splunk
+      state: restarted
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 delay=5

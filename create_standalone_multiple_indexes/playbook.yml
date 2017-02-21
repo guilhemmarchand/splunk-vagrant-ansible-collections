@@ -1,0 +1,219 @@
+---
+
+- hosts: splunk
+  become: yes
+  become_method: sudo
+
+  vars_files:
+   - vars/global_vars.yml
+
+  tasks:
+
+############################## Deploy Splunk ##############################
+
+  - name: Create the system splunk account for splunk
+    user: name=splunk comment="system account for Splunk" state=present
+
+  # Verify if Splunk is already installed
+  - name: Check if Splunk path exists
+    stat: path={{ splunk_installpath }}/splunk
+    register: check_splunk_path
+
+  # Copy and unarchive Splunk
+  - name: Copy and unarchive Splunk
+    unarchive: src={{ splunk_binpath }} dest={{ splunk_installpath }} owner=splunk group=splunk
+    when: check_splunk_path.stat.exists == false
+
+  # Start and accept license (run async)
+  - name: Start Splunk and accept license
+    command: "{{ splunk_installpath }}/splunk/bin/splunk start --answer-yes --no-prompt --accept-license"
+    async: 60
+    poll: 5
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+    when: check_splunk_path.stat.exists == false
+
+  # Verify if there a local license file to be deployed
+  - name: Check if a local license file exists (splunk.license in current directory)
+    local_action: stat path=splunk.license
+    register: check_splunk_license
+    become: no
+
+  # Enable boot-start
+  - name: Enable boot start for Splunk
+    command: "{{ splunk_installpath }}/splunk/bin/splunk enable boot-start -user splunk"
+    ignore_errors: yes
+    when: check_splunk_path.stat.exists == false
+
+  # Change default admin password to admin to allow remote connections
+  - name: Set the admin default password to admin
+    command: "{{ splunk_installpath }}/splunk/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
+    become: yes
+    become_user: splunk
+    when: check_splunk_path.stat.exists == false
+
+  # Prevent from asking for password change
+  - stat: path="{{ splunk_installpath }}/splunk/etc/.ui_login"
+    register: p
+  - name: Disable asking for password change at first connection
+    file: path="{{ splunk_installpath }}/splunk/etc/.ui_login" state=touch owner=splunk group=splunk mode=0555
+    when: not p.stat.exists
+
+  # Enable peer
+  - name: Enable receiving port 9997
+    command: "{{ splunk_installpath }}/splunk/bin/splunk enable listen 9997 -auth admin:admin"
+    become: yes
+    become_user: splunk
+    when: check_splunk_path.stat.exists == false
+
+  # Apply outputs.conf for clients
+  - name: Prepare the client_config app for deployment
+    copy: src=client_config dest={{ splunk_installpath }}/splunk/etc/deployment-apps/ owner=splunk group=splunk
+
+  # Apply serverclass.conf
+  - name: Apply serverclass.conf
+    copy: src=splunk_config/serverclass.conf dest={{ splunk_installpath }}/splunk/etc/system/local/ owner=splunk group=splunk
+
+  # Apply authorize.conf
+  - name: Apply authorize.conf
+    copy: src=splunk_config/authorize.conf dest={{ splunk_installpath }}/splunk/etc/system/local/ owner=splunk group=splunk
+
+  # Apply inputs.conf
+  - name: Apply inputs.conf
+    copy: src=splunk_config/inputs.conf dest={{ splunk_installpath }}/splunk/etc/system/local/ owner=splunk group=splunk
+
+  # Apply inputs.conf
+  - name: Apply indexes.conf
+    copy: src=splunk_config/indexes.conf dest={{ splunk_installpath }}/splunk/etc/system/local/ owner=splunk group=splunk
+
+  # Deploy the core application
+  - name: Unarchive nmon performance core app
+    unarchive: src={{ core_archive }} dest=/opt/splunk/etc/apps
+    become: yes
+    become_user: splunk
+
+  # Remove
+  - name: Cleaning working_directory if exist
+    file: path=/tmp/working_directory state=absent
+    ignore_errors: yes
+
+  - file:
+      path: /tmp/working_directory
+      state: directory
+      owner: splunk
+      group: splunk
+
+  # copy Python tool
+  - name: Copy create_agent.py.gz to working_directory
+    shell: "cp /opt/splunk/etc/apps/nmon/resources/create_agent.py.gz /tmp/working_directory/"
+    become: yes
+    become_user: splunk
+
+  # copy Python tool
+  - name: Extract create_agent.py to working_directory
+    shell: "gunzip -f /tmp/working_directory/create_agent.py.gz"
+    become: yes
+    become_user: splunk
+
+  # copy full archive to working_directory
+  - name: Copy core archive to working_directory
+    copy: src={{ core_archive }} dest=/tmp/working_directory/ owner=splunk group=splunk
+    become: yes
+    become_user: splunk
+
+  # Create TA prod
+  - name: Create the TA-nmon-dc-US
+    shell: "cd /tmp/working_directory/ && python create_agent.py --indexname nmon_perf_unix_datacenter_US --agentname TA-nmon-datacenter-US -f `ls /tmp/working_directory/nmon-performance-monitor-for-unix-and-linux-systems_*.tgz`"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  # Create TA prod
+  - name: Create the TA-nmon-dc-UK
+    shell: "cd /tmp/working_directory/ && python create_agent.py --indexname nmon_perf_unix_datacenter_UK --agentname TA-nmon-datacenter-UK -f `ls /tmp/working_directory/nmon-performance-monitor-for-unix-and-linux-systems_*.tgz`"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  # Deploy the TA
+  - name: Unarchive the TA-nmon-dc-US
+    shell: "tar -xzf /tmp/working_directory/TA-nmon-datacenter-US.tgz -C /opt/splunk/etc/deployment-apps/"
+    become: yes
+    become_user: splunk
+
+  # Deploy the TA
+  - name: Unarchive the TA-nmon-dc-UK
+    shell: "tar -xzf /tmp/working_directory/TA-nmon-datacenter-UK.tgz -C /opt/splunk/etc/deployment-apps/"
+    become: yes
+    become_user: splunk
+
+  # Restart service
+  - name: Restart Splunk
+    service: name=splunk state=restarted
+
+  # Wait for service startup
+  - name: Wait for Splunk startup
+    wait_for: port=8089 timeout=30
+    ignore_errors: yes
+
+  # Add a user
+  - name: Add a user belonging to the team-unix-admin-us (username=user-unix-admin-us)
+    command: "{{ splunk_installpath }}/splunk/bin/splunk add user user-unix-admin-us -password admin -role team-unix-admin-us -auth admin:admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+  # Add a user
+  - name: Add a user belonging to the team-unix-admin-uk (username=user-unix-admin-uk)
+    command: "{{ splunk_installpath }}/splunk/bin/splunk add user user-unix-admin-uk -password admin -role team-unix-admin-uk -auth admin:admin"
+    become: yes
+    become_user: splunk
+    ignore_errors: yes
+
+############################## Clients ##############################
+
+- hosts: dc-uk-lpsrv01 dc-uk-lpsrv02 dc-us-lpsrv01 dc-us-lpsrv02
+  become: yes
+  become_method: sudo
+
+  vars_files:
+   - vars/global_vars.yml
+
+  tasks:
+
+############################## Deploy and Configuration Splunk UF ##############################
+
+  # Verify if Splunk Universal Forwarder is already installed
+  - name: Check if Splunk Universal Forwarder path exists
+    stat: path={{ splunk_installpath }}/splunkforwarder
+    register: check_splunk_path
+
+  # Copy and unarchive Splunk Universal Forwarder if not present
+  - name: Copy and unarchive Splunk Universal Forwarder for Linux 64 bits architecture
+    unarchive: src={{ splunkforwarder_binpath }} dest={{ splunk_installpath }}/
+    ignore_errors: yes
+
+  # Start and accept license
+  - name: Start Splunk Universal Forwarder and accept license
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk start --answer-yes --no-prompt --accept-license"
+    when: check_splunk_path.stat.exists == false
+    ignore_errors: yes
+
+  # Enable boot-start
+  - name: Enable boot start for Splunk Universal Forwarder
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk enable boot-start"
+    when: check_splunk_path.stat.exists == false
+    ignore_errors: yes
+
+  # Configure Splunk as a client of the deployment server
+  - name: Configure Splunk as client of the deployment server
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk set deploy-poll {{ splunk_deploymentserver_adress }} -auth admin:changeme"
+    when: check_splunk_path.stat.exists == false
+    ignore_errors: yes
+
+  # Finally restart Splunk
+  - name: Restart Splunk Universal Forwarder
+    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk restart"
+    when: check_splunk_path.stat.exists == false
+    ignore_errors: yes

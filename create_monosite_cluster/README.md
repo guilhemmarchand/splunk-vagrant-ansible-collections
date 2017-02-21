@@ -1,4 +1,4 @@
-# This will create a full Splunk mono-site cluster with:
+# This will create a Splunk single-site cluster with:
 
 - master node
 - 2 x peer nodes (indexers)
@@ -8,6 +8,7 @@
 
 # pre-requisites:
 
+- Internet connection
 - Virtualbox
 - Vagrant
 - Ansible
@@ -21,6 +22,10 @@ See: http://www.splunk.com/en_us/download/splunk-enterprise.html
 * Download the Splunk Universal Forwarder tar.gz archive for Linux 64 bits, and store it in: /opt/deployment/splunk_bin/
 
 See: http://www.splunk.com/en_us/download/universal-forwarder.html
+
+* Download the Nmon Performance application, and store it in: /opt/deployment/nmon-for-splunk/
+
+See: https://splunkbase.splunk.com/app/1753
 
 * Install requirements (Virtualbox, Vagrant, Ansible) if needed
 
@@ -36,19 +41,19 @@ Once operations are done, you can:
 
 * Connect to the master node and access for example the DMC (Distributed Management Console)
 
-http://192.168.33.101:8000
+http://172.28.128.100:8000
 
 With login / password: admin / admin
 
 * Connect to one of search heads: (example with the first search head)
 
-http://192.168.33.104:8000
+http://172.28.128.103:8000
 
 With login / password: admin / admin
 
 * Connect to the deployment server and administer connected Universal Forwarders
 
-http://192.168.33.107:8000
+http://172.28.128.106:8000
 
 With login / password: admin / admin
 
@@ -59,7 +64,3 @@ Simply run:
 `$ ./destroy.sh`
 
 [![asciicast](https://asciinema.org/a/77wkadwlng00hfjyeuracd0q5.png)](https://asciinema.org/a/77wkadwlng00hfjyeuracd0q5?speed=15)
-
-
-
-

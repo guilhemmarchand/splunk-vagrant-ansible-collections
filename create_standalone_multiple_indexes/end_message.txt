@@ -1,0 +1,27 @@
+
+****************** Summary: ******************
+
+
+To access to the standalone instance, open your Web browser to: http://172.28.128.100:8000
+
+
+login: admin
+passord: admin
+
+
+Additional Splunk users:
+
+- user: user-unix-admin-us (password: admin)
+- user: user-unix-admin-uk (password: admin)
+
+
+For VM terminal access, run:
+vagrant ssh splunk
+
+
+Then to be connected as the splunk Unix user, enter:
+sudo su - splunk
+
+
+****************** End ******************
+

@@ -1,0 +1,29 @@
+---
+
+# Definition of the time zone
+localzone: Europe/London
+
+# Definition of the hosts file
+template_hosts: "hosts"
+
+# Splunk deployment folder path
+splunk_deployment: /opt/deployment
+
+# Value of the admin password to be set
+admin_passwd: admin
+
+# Where to find Splunk binaries
+splunk_binpath: "{{ lookup('pipe', 'ls ' + splunk_deployment + '/splunk_bin/splunk-*.tgz | head -1') }}"
+splunkforwarder_binpath: "{{ lookup('pipe', 'ls ' + splunk_deployment + '/splunk_bin/splunkforwarder-*-Linux-x86_64.tgz | head -1') }}"
+
+# root path for Splunk installation
+splunk_installpath: /opt
+
+# root path for Splunk Forwarder
+splunkforwarder_installpath: /opt
+
+# The deployment server address
+splunk_deploymentserver_adress: 172.28.128.100:8089
+
+# Nmon apps
+core_archive: "{{ lookup('pipe', 'ls /opt/deployment/nmon-for-splunk/nmon-performance-monitor-for-unix-and-linux-systems_*.tgz | head -1') }}"

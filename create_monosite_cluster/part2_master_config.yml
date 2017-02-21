@@ -8,10 +8,8 @@
   become: yes
   become_method: sudo
 
-  vars:
-   - splunk_installpath: /opt
-   - peers_cluster_key: this_is_the_secret_peers_cluster_key
-   - sh_cluster_key: this_is_the_secret_sh_cluster_key
+  vars_files:
+   - vars/global_vars.yml
 
   tasks:
 

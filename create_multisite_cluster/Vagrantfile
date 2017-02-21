@@ -6,84 +6,84 @@
 servers=[
       {
         :hostname => "master",
-        :ip => "192.168.33.101",
+        :ip => "172.28.128.100",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "peer1-site1",
-        :ip => "192.168.33.102",
+        :ip => "172.28.128.101",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "peer2-site1",
-        :ip => "192.168.33.103",
+        :ip => "172.28.128.102",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "peer1-site2",
-        :ip => "192.168.33.104",
+        :ip => "172.28.128.103",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "peer2-site2",
-        :ip => "192.168.33.105",
+        :ip => "172.28.128.104",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "head1",
-        :ip => "192.168.33.106",
+        :ip => "172.28.128.105",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "head2",
-        :ip => "192.168.33.107",
+        :ip => "172.28.128.106",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "head3",
-        :ip => "192.168.33.108",
+        :ip => "172.28.128.107",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "deployment1-site1",
-        :ip => "192.168.33.109",
+        :ip => "172.28.128.108",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "deployment1-site2",
-        :ip => "192.168.33.110",
+        :ip => "172.28.128.109",
         :box => "ubuntu/trusty64",
         :ram => 512,
         :cpu => 1
       },
       {
         :hostname => "uf1-site1",
-        :ip => "192.168.33.111",
+        :ip => "172.28.128.110",
         :box => "ubuntu/trusty64",
         :ram => 256,
         :cpu => 1
       },
       {
         :hostname => "uf1-site2",
-        :ip => "192.168.33.112",
+        :ip => "172.28.128.111",
         :box => "ubuntu/trusty64",
         :ram => 256,
         :cpu => 1

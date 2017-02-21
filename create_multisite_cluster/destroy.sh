@@ -1,7 +1,5 @@
 #!/bin/sh
 
-export VAGRANT_HOME=`pwd`
-
 echo "****************** Destroying vagrant VMs: ******************"
 
 for server in `grep -v -e ^# -e localhost -e ^$ hosts | awk '{print $2}'`; do

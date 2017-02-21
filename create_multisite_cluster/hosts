@@ -3,23 +3,23 @@
 127.0.0.1   localhost
 
 # Master node
-192.168.33.101  master
+172.28.128.100  master
 
 # Peers
-192.168.33.102  peer1-site1
-192.168.33.103  peer2-site1
-192.168.33.104  peer1-site2
-192.168.33.105  peer2-site2
+172.28.128.101  peer1-site1
+172.28.128.102  peer2-site1
+172.28.128.103  peer1-site2
+172.28.128.104  peer2-site2
 
 # Search heads
-192.168.33.106  head1
-192.168.33.107  head2
-192.168.33.108  head3
+172.28.128.105  head1
+172.28.128.106  head2
+172.28.128.107  head3
 
 # Deployment servers
-192.168.33.109  deployment1-site1
-192.168.33.110  deployment1-site2
+172.28.128.108  deployment1-site1
+172.28.128.109  deployment1-site2
 
 # Universal Forwarder clients
-192.168.33.111  uf1-site1
-192.168.33.112  uf1-site2
+172.28.128.110  uf1-site1
+172.28.128.111  uf1-site2

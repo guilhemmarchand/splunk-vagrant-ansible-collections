@@ -10,8 +10,8 @@
   become: yes
   become_method: sudo
 
-  vars:
-   - splunk_installpath: /opt
+  vars_files:
+   - vars/global_vars.yml
 
   tasks:
 
@@ -27,7 +27,7 @@
 
   # copy serverclass.conf
   - name: Copy serverclass.conf
-    copy: src=serverclass.conf_site1 dest={{ splunk_installpath }}/splunk/etc/system/local/serverclass.conf owner=splunk group=splunk
+    copy: src=splunk_config/serverclass.conf_site1 dest={{ splunk_installpath }}/splunk/etc/system/local/serverclass.conf owner=splunk group=splunk
 
   # Set as licence slave - This is not supported with trial licence !
   #- name: Set as licence slave
@@ -50,8 +50,8 @@
   become: yes
   become_method: sudo
 
-  vars:
-   - splunk_installpath: /opt
+  vars_files:
+   - vars/global_vars.yml
 
   tasks:
 
@@ -67,7 +67,7 @@
 
   # copy serverclass.conf
   - name: Copy serverclass.conf
-    copy: src=serverclass.conf_site2 dest={{ splunk_installpath }}/splunk/etc/system/local/serverclass.conf owner=splunk group=splunk
+    copy: src=splunk_config/serverclass.conf_site2 dest={{ splunk_installpath }}/splunk/etc/system/local/serverclass.conf owner=splunk group=splunk
 
   # Set as licence slave - This is not supported with trial licence !
   #- name: Set as licence slave
@@ -90,10 +90,8 @@
   become: yes
   become_method: sudo
 
-  vars:
-   - splunk_binpath: "{{ lookup('pipe', 'ls /opt/deployment/splunk_bin/splunkforwarder-*-Linux-x86_64.tgz | head -1') }}"
-   - splunk_installpath: /opt
-   - splunk_deploymentserver_adress: deployment1-site1:8089
+  vars_files:
+   - vars/global_vars.yml
 
   tasks:
 
@@ -101,39 +99,39 @@
 
   # Verify if Splunk Universal Forwarder is already installed
   - name: Check if Splunk Universal Forwarder path exists
-    stat: path={{ splunk_installpath }}/splunkforwarder
+    stat: path={{ splunkforwarder_installpath }}/splunkforwarder
     register: check_splunk_path
 
   # Copy and unarchive Splunk Universal Forwarder if not present
   - name: Copy and unarchive Splunk Universal Forwarder
-    unarchive: src={{ splunk_binpath }} dest={{ splunk_installpath }}
+    unarchive: src={{ splunkforwarder_binpath }} dest={{ splunkforwarder_installpath }}
     when: check_splunk_path.stat.exists == false
 
   # Start and accept licence
   - name: Start Splunk Universal Forwarder and accept licence
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk start --answer-yes --no-prompt --accept-license"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk start --answer-yes --no-prompt --accept-license"
     when: check_splunk_path.stat.exists == false
     ignore_errors: yes
 
   # Enable boot-start
   - name: Enable boot start for Splunk Universal Forwarder
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk enable boot-start"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk enable boot-start"
     when: check_splunk_path.stat.exists == false
     ignore_errors: yes
 
   # Change default admin password to admin to allow remote connections
   - name: Set the admin default password to admin
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
 
   # Configure Splunk as a client of the deployment server
   - name: Configure Splunk as client of the deployment server
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk set deploy-poll {{ splunk_deploymentserver_adress }} -auth admin:admin"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk set deploy-poll {{ splunk_deploymentserver_adress_site1 }} -auth admin:admin"
     when: check_splunk_path.stat.exists == false
     ignore_errors: yes
 
   # Finally restart Splunk
   - name: Restart Splunk Universal Forwarder
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk restart"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk restart"
     when: check_splunk_path.stat.exists == false
     ignore_errors: yes
 
@@ -143,10 +141,8 @@
   become: yes
   become_method: sudo
 
-  vars:
-   - splunk_binpath: "{{ lookup('pipe', 'ls /opt/deployment/splunk_bin/splunkforwarder-*-Linux-x86_64.tgz | head -1') }}"
-   - splunk_installpath: /opt
-   - splunk_deploymentserver_adress: deployment1-site2:8089
+  vars_files:
+   - vars/global_vars.yml
 
   tasks:
 
@@ -154,38 +150,38 @@
 
   # Verify if Splunk Universal Forwarder is already installed
   - name: Check if Splunk Universal Forwarder path exists
-    stat: path={{ splunk_installpath }}/splunkforwarder
+    stat: path={{ splunkforwarder_installpath }}/splunkforwarder
     register: check_splunk_path
 
   # Copy and unarchive Splunk Universal Forwarder if not present
   - name: Copy and unarchive Splunk Universal Forwarder
-    unarchive: src={{ splunk_binpath }} dest={{ splunk_installpath }}
+    unarchive: src={{ splunkforwarder_binpath }} dest={{ splunkforwarder_installpath }}
     when: check_splunk_path.stat.exists == false
 
   # Start and accept licence
   - name: Start Splunk Universal Forwarder and accept licence
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk start --answer-yes --no-prompt --accept-license"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk start --answer-yes --no-prompt --accept-license"
     when: check_splunk_path.stat.exists == false
     ignore_errors: yes
 
   # Enable boot-start
   - name: Enable boot start for Splunk Universal Forwarder
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk enable boot-start"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk enable boot-start"
     when: check_splunk_path.stat.exists == false
     ignore_errors: yes
 
   # Change default admin password to admin to allow remote connections
   - name: Set the admin default password to admin
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
 
   # Configure Splunk as a client of the deployment server
   - name: Configure Splunk as client of the deployment server
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk set deploy-poll {{ splunk_deploymentserver_adress }} -auth admin:admin"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk set deploy-poll {{ splunk_deploymentserver_adress_site1 }} -auth admin:admin"
     when: check_splunk_path.stat.exists == false
     ignore_errors: yes
 
   # Finally restart Splunk
   - name: Restart Splunk Universal Forwarder
-    command: "{{ splunk_installpath }}/splunkforwarder/bin/splunk restart"
+    command: "{{ splunkforwarder_installpath }}/splunkforwarder/bin/splunk restart"
     when: check_splunk_path.stat.exists == false
     ignore_errors: yes

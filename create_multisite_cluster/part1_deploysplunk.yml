@@ -4,11 +4,8 @@
   become: yes
   become_method: sudo
 
-  vars:
-   - splunk_binpath: "{{ lookup('pipe', 'ls /opt/deployment/splunk_bin/splunk-*.tgz | head -1') }}"
-   - template_hosts: "hosts"
-   - splunk_installpath: /opt
-   - localzone: Europe/Paris
+  vars_files:
+   - vars/global_vars.yml
 
   tasks:
 
@@ -51,8 +48,6 @@
   # Start service (dont' wait for service to start)
   - name: Start Splunk service
     service: name=splunk state=started
-    async: 60
-    poll: 0
 
   # Wait for service startup
   - name: Wait for Splunk startup
@@ -64,6 +59,13 @@
     command: "{{ splunk_installpath }}/splunk/bin/splunk edit user admin -password 'admin' -auth admin:changeme"
     become: yes
     become_user: splunk
+
+  # Prevent from asking for password change
+  - stat: path="{{ splunk_installpath }}/splunk/etc/.ui_login"
+    register: p
+  - name: Disable asking for password change at first connection
+    file: path="{{ splunk_installpath }}/splunk/etc/.ui_login" state=touch owner=splunk group=splunk mode=0555
+    when: not p.stat.exists    
 
 ############################## ssh config ##############################
 
